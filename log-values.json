@@ -1,0 +1,9 @@
+{
+  "tool": "order_preview",
+  "since": "index.js v1.0.0",
+  "types": {
+    "login": { "result": null, "stage": null, "desc": "دخول موظف إلى أداة معاينة الطلب" },
+    "logout": { "result": null, "stage": null, "desc": "خروج موظف من أداة معاينة الطلب" }
+  }
+}
+
