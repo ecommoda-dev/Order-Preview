@@ -1,0 +1,16 @@
+name = "order-preview-worker"
+main = "index.js"
+compatibility_date = "2025-01-01"
+workers_dev = true
+
+[observability]
+enabled = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ecommoda-dev-logs"
+database_id = "90db62d3-bd7e-4d92-912b-10fc78eeb565"
+
+[vars]
+SHOP_DOMAIN = "6c7e1a-53.myshopify.com"
+
