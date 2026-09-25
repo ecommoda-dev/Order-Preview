@@ -528,16 +528,8 @@ body {
     </div>
     <div class="settings-modal-body">
       <div class="settings-field">
-        <label class="settings-label">WORKER URL</label>
-        <input type="text" class="settings-input" id="cfgUrl" />
-      </div>
-      <div class="settings-field">
         <label class="settings-label">WORKER SECRET</label>
         <input type="password" class="settings-input" id="cfgSecret" />
-      </div>
-      <div class="settings-field">
-        <label class="settings-label">ADMIN WORKER URL</label>
-        <input type="text" class="settings-input" id="cfgAdminUrl" />
       </div>
       <!-- Add more fields as needed — same pattern, no placeholder ever -->
     </div>
@@ -758,21 +750,19 @@ const TOOL_VERSION = 'v1.0.0'; // ← CHANGE VERSION — SINGLE SOURCE OF TRUTH
                                 //   (header badge + changelog badge + login screen text
                                 //    all render from this one constant — never hardcode
                                 //    the version string anywhere else)
-const LS_URL       = 'order_preview_worker_url';    // ← CHANGE prefix
+const WORKER_URL   = 'https://order-preview-worker.ecommoda-dev.workers.dev';
 const LS_SECRET    = 'order_preview_worker_secret'; // ← CHANGE prefix
-const LS_ADMIN_URL = 'admin_worker_url';        // shared across all tools
 
 function getConfig() {
   return {
-    workerUrl:    localStorage.getItem(LS_URL)    || '',
+    workerUrl:    WORKER_URL,
     workerSecret: localStorage.getItem(LS_SECRET) || '',
-    adminUrl:     localStorage.getItem(LS_ADMIN_URL) || '',
   };
 }
 
 function isConfigured() {
   const c = getConfig();
-  return c.workerUrl.startsWith('http') && c.workerSecret.length > 0;
+  return c.workerSecret.length > 0;
 }
 
 // ─── §CONFIG::esc — إلزامي قبل أي قيمة خارجية تدخل innerHTML ───
@@ -811,24 +801,17 @@ function cairoDateStr(d = new Date()) { const p = cairoParts(d); return `${p.yea
 // ── Settings ──────────────────────────────────────────────────
 function openSettings() {
   const c = getConfig();
-  document.getElementById('cfgUrl').value      = c.workerUrl    || '';
   document.getElementById('cfgSecret').value   = c.workerSecret || '';
-  document.getElementById('cfgAdminUrl').value = c.adminUrl     || '';
   document.getElementById('settingsOverlay').classList.add('open');
 }
 function closeSettings()            { document.getElementById('settingsOverlay').classList.remove('open'); }
 function closeSettingsOnBackdrop(e) { if (e.target === e.currentTarget) closeSettings(); }
 
 function saveSettings() {
-  const url      = document.getElementById('cfgUrl').value.trim();
   const secret   = document.getElementById('cfgSecret').value.trim();
-  const adminUrl = document.getElementById('cfgAdminUrl').value.trim();
-  if (!url || !secret) { showToast('الرجاء إدخال الـ URL والـ Secret', 'error'); return; }
+  if (!secret) { showToast('الرجاء إدخال الـ Secret', 'error'); return; }
 
-  // ① Strip trailing slash — MANDATORY
-  localStorage.setItem(LS_URL,       url.replace(/\/$/, ''));
   localStorage.setItem(LS_SECRET,    secret);
-  localStorage.setItem(LS_ADMIN_URL, adminUrl.replace(/\/$/, ''));
 
   updateSettingsBtn();
   updateLoginSettingsBtn();
@@ -929,6 +912,7 @@ function cmpVersion(a, b) {
 }
 
 async function checkWorkerVersion() {
+  if (!isConfigured()) return;
   try {
     const d = await apiGet('get_config');
     workerVersion = d.version || null;
